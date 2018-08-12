@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render, get_object_or_404,reverse
+from django.shortcuts import render, get_object_or_404,reverse,redirect
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Question, Choice
+from .models import Question, Choice, Publisher
 from django.core.urlresolvers import reverse
 
-from .forms import ContactForm
+from .forms import ContactForm, AuthorForm,PublisherForm
 
 
 # Create your views here.
@@ -71,3 +71,39 @@ def send_mail(request):
 	else:
 	    return render(request, 'polls/sendmail.html', {'form':form})
 
+
+
+def author_add(request):
+    if request.method == 'GET':
+        form = AuthorForm()
+	return render(request,'polls/author_add.html',{'form': form})
+
+
+
+
+
+def publisher_add(request):
+    if request.method == 'POST':
+        form = PublisherForm(request.POST)
+	if form.is_valid():
+	    publisher = form.save()
+	    return HttpResponse('add sucess')
+    else:
+        form = PublisherForm(initial={'name': "O'Reilly",'city': 'shenzhen'})
+
+    return render(request,'polls/publisher_add.html',{'form': form})
+
+
+
+def publisher_update(request, publisher_id):
+    publisher = get_object_or_404(Publisher, id=publisher_id)
+
+    if request.method == 'GET':
+        form = PublisherForm(instance=publisher)
+	return render(request,'polls/publisher_add.html',{'form': form})
+    elif request.method == 'POST':
+        form = PublisherForm(request.POST, instance=publisher)
+	if form.is_valid():
+	    form.save()
+	    return HttpResponse('Update sucess')
+    return HttpResponse('Valid')
